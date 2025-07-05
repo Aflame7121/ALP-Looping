@@ -20,7 +20,7 @@ class ALPConfigSchema(Schema):
     )
     debug_mode = fields.Boolean(
         required=False, 
-        missing=False
+        default=False
     )
 
 class ALPConfig:
