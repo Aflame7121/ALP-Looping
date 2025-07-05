@@ -64,31 +64,22 @@ class ConfigurationManager:
         """
         # Start with default configuration
         config = ALPConfiguration()
+        config_dict = asdict(config)
         
         # Try loading from JSON file
-        try:
-            if os.path.exists(self._config_path):
+        if os.path.exists(self._config_path):
+            try:
                 with open(self._config_path, 'r') as f:
                     file_config = json.load(f)
-                    config = self._merge_configs(config, ALPConfiguration(**file_config))
-        except (json.JSONDecodeError, IOError) as e:
-            raise ConfigurationError(f"Error reading configuration file: {e}")
+                    # Update config_dict with file_config, prioritizing file values
+                    for key, value in file_config.items():
+                        if value is not None:
+                            config_dict[key] = value
+            except (json.JSONDecodeError, IOError) as e:
+                raise ConfigurationError(f"Error reading configuration file: {e}")
         
         # Override with environment variables
-        env_config = self._load_env_config()
-        config = self._merge_configs(config, env_config)
-        
-        return config
-    
-    def _load_env_config(self) -> ALPConfiguration:
-        """
-        Load configuration from environment variables.
-        
-        Returns:
-            ALPConfiguration: Configuration loaded from environment variables
-        """
-        env_config_dict = {}
-        for field_name, value in asdict(ALPConfiguration()).items():
+        for field_name, value in config_dict.items():
             env_var = f'ALP_{field_name.upper()}'
             env_value = os.environ.get(env_var)
             
@@ -96,36 +87,15 @@ class ConfigurationManager:
                 try:
                     # Convert string to appropriate type
                     if field_name == 'additional_params':
-                        env_config_dict[field_name] = json.loads(env_value)
+                        config_dict[field_name] = json.loads(env_value)
                     elif isinstance(value, float):
-                        env_config_dict[field_name] = float(env_value)
+                        config_dict[field_name] = float(env_value)
                     elif isinstance(value, int):
-                        env_config_dict[field_name] = int(env_value)
+                        config_dict[field_name] = int(env_value)
                     else:
-                        env_config_dict[field_name] = env_value
+                        config_dict[field_name] = env_value
                 except (ValueError, json.JSONDecodeError) as e:
                     raise ConfigurationError(f"Invalid environment variable {env_var}: {e}")
-        
-        return ALPConfiguration(**env_config_dict)
-    
-    def _merge_configs(self, base_config: ALPConfiguration, 
-                       override_config: ALPConfiguration) -> ALPConfiguration:
-        """
-        Merge two configurations with the override taking precedence.
-        
-        Args:
-            base_config (ALPConfiguration): Base configuration
-            override_config (ALPConfiguration): Configuration to override base
-        
-        Returns:
-            ALPConfiguration: Merged configuration
-        """
-        config_dict = asdict(base_config)
-        override_dict = asdict(override_config)
-        
-        for key, value in override_dict.items():
-            if value is not None:
-                config_dict[key] = value
         
         return ALPConfiguration(**config_dict)
     
@@ -149,8 +119,16 @@ class ConfigurationManager:
             ConfigurationError: If invalid configuration parameters are provided
         """
         try:
-            update_config = ALPConfiguration(**kwargs)
-            self._config = self._merge_configs(self._config, update_config)
+            # Create a copy of current config to update
+            config_dict = asdict(self._config)
+            
+            # Update with provided kwargs
+            for key, value in kwargs.items():
+                if value is not None:
+                    config_dict[key] = value
+            
+            # Recreate configuration object
+            self._config = ALPConfiguration(**config_dict)
         except TypeError as e:
             raise ConfigurationError(f"Invalid configuration update: {e}")
     
