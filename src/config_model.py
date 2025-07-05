@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, post_load
 
 class ALPConfigSchema(Schema):
     """
@@ -7,21 +7,26 @@ class ALPConfigSchema(Schema):
     Validates and serializes configuration parameters
     """
     learning_rate = fields.Float(
-        required=True, 
         validate=validate.Range(min=0.0, max=1.0)
     )
     max_iterations = fields.Integer(
-        required=True, 
         validate=validate.Range(min=1, max=10000)
     )
     convergence_threshold = fields.Float(
-        required=True, 
         validate=validate.Range(min=0.0, max=1.0)
     )
-    debug_mode = fields.Boolean(
-        required=False, 
-        default=False
-    )
+    debug_mode = fields.Boolean()
+
+    @post_load
+    def set_defaults(self, data, **kwargs):
+        """
+        Set default values for optional fields
+        """
+        data.setdefault('learning_rate', 0.01)
+        data.setdefault('max_iterations', 1000)
+        data.setdefault('convergence_threshold', 0.001)
+        data.setdefault('debug_mode', False)
+        return data
 
 class ALPConfig:
     """
