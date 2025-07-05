@@ -8,23 +8,19 @@ class ALPConfigSchema(Schema):
     """
     learning_rate = fields.Float(
         required=True, 
-        validate=validate.Range(min=0.0, max=1.0),
-        description="Learning rate for the adaptive learning process"
+        validate=validate.Range(min=0.0, max=1.0)
     )
     max_iterations = fields.Integer(
         required=True, 
-        validate=validate.Range(min=1, max=10000),
-        description="Maximum number of iterations for the learning process"
+        validate=validate.Range(min=1, max=10000)
     )
     convergence_threshold = fields.Float(
         required=True, 
-        validate=validate.Range(min=0.0, max=1.0),
-        description="Convergence threshold for stopping criteria"
+        validate=validate.Range(min=0.0, max=1.0)
     )
     debug_mode = fields.Boolean(
         required=False, 
-        missing=False,
-        description="Enable detailed logging and debugging"
+        missing=False
     )
 
 class ALPConfig:
