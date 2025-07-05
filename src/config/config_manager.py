@@ -55,8 +55,8 @@ class ConfigurationManager:
         Load configuration from multiple sources with precedence.
         
         Precedence order:
-        1. Environment variables
-        2. Configuration file
+        1. Configuration file
+        2. Environment variables
         3. Default configuration
         
         Returns:
@@ -120,13 +120,14 @@ class ConfigurationManager:
         Returns:
             ALPConfiguration: Merged configuration
         """
-        merged_config = deepcopy(base_config)
+        config_dict = asdict(base_config)
+        override_dict = asdict(override_config)
         
-        for field_name, value in asdict(override_config).items():
+        for key, value in override_dict.items():
             if value is not None:
-                setattr(merged_config, field_name, value)
+                config_dict[key] = value
         
-        return merged_config
+        return ALPConfiguration(**config_dict)
     
     def get_config(self) -> ALPConfiguration:
         """
