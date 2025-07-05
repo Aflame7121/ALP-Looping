@@ -18,8 +18,18 @@ def test_valid_config_validation():
 def test_invalid_learning_mode():
     """Test that invalid learning modes raise an error."""
     invalid_configs = [
-        {'learning_mode': 'INVALID_MODE'},
-        {'learning_mode': 123}
+        {
+            'learning_mode': 'INVALID_MODE',
+            'max_iterations': 100,
+            'learning_rate': 0.01,
+            'convergence_threshold': 0.001
+        },
+        {
+            'learning_mode': 123,
+            'max_iterations': 100,
+            'learning_rate': 0.01,
+            'convergence_threshold': 0.001
+        }
     ]
     
     for config in invalid_configs:
@@ -71,9 +81,24 @@ def test_invalid_numeric_parameters():
 def test_learning_mode_conversion():
     """Test conversion of learning mode strings and enums."""
     config_strings = [
-        {'learning_mode': 'SUPERVISED'},
-        {'learning_mode': 'UNSUPERVISED'},
-        {'learning_mode': 'REINFORCEMENT'}
+        {
+            'learning_mode': 'SUPERVISED',
+            'max_iterations': 100,
+            'learning_rate': 0.01,
+            'convergence_threshold': 0.001
+        },
+        {
+            'learning_mode': 'UNSUPERVISED',
+            'max_iterations': 100,
+            'learning_rate': 0.01,
+            'convergence_threshold': 0.001
+        },
+        {
+            'learning_mode': 'REINFORCEMENT',
+            'max_iterations': 100,
+            'learning_rate': 0.01,
+            'convergence_threshold': 0.001
+        }
     ]
     
     for config in config_strings:
