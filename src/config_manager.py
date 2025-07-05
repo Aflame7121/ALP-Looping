@@ -28,19 +28,24 @@ class ConfigurationManager:
         self._config_path = config_path or 'alp_config.json'
         self._config = self._load_config()
 
-    def _load_config(self) -> ALPLoopConfig:
+    def _load_config(self, config_data: Optional[Dict[str, Any]] = None) -> ALPLoopConfig:
         """
         Load configuration from file or return default configuration
         
+        :param config_data: Optional configuration dictionary to override file/default config
         :return: Validated ALPLoopConfig
         :raises FileNotFoundError: If config file is not found
         :raises ValidationError: If configuration is invalid
         """
         try:
+            if config_data:
+                return ALPLoopConfig(**config_data)
+            
             if os.path.exists(self._config_path):
                 with open(self._config_path, 'r') as f:
-                    config_data = json.load(f)
-                return ALPLoopConfig(**config_data)
+                    file_config_data = json.load(f)
+                return ALPLoopConfig(**file_config_data)
+            
             return ALPLoopConfig()
         except FileNotFoundError:
             return ALPLoopConfig()
